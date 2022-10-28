@@ -1,0 +1,15 @@
+
+
+/ {
+	binman: binman {
+		multiple-images;
+	};
+};
+
+&binman {
+	foo {
+		filename = "foo.bin";
+		u-boot-spl-nodtb {
+		};
+	};
+};
