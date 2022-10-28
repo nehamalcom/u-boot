@@ -38,5 +38,5 @@ class Entry_u_boot_spl_nodtb(Entry_blob):
     def GetDefaultFilename(self):
         return 'spl/u-boot-spl-nodtb.bin'
 
-    def WriteSymbols(self, section):
-        elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())
+    #def WriteSymbols(self, section):
+    #   elf.LookupAndWriteSymbols(self.elf_fname, self, section.GetImage())
