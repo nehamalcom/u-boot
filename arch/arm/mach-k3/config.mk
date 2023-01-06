@@ -39,6 +39,41 @@ $(warning "WARNING: Software revision file not found. Default may not work on HS
 endif
 endif
 
+O ?= .
+
+# Board config binary artifacts necessary for packaging of tiboot3.bin
+# and sysfw.itb by binman, currently for general purpose devices and
+# devices that require sysfw.itb in ROM boot image.
+
+ifdef CONFIG_BINMAN
+
+BOARD_YAML = $(srctree)/board/ti/$(BOARD)/board-cfg.yaml
+RM_YAML = $(srctree)/board/ti/$(BOARD)/rm-cfg.yaml
+SEC_YAML = $(srctree)/board/ti/$(BOARD)/sec-cfg.yaml
+PM_YAML = $(srctree)/board/ti/$(BOARD)/pm-cfg.yaml
+
+SCHEMA_YAML = $(srctree)/board/ti/common/schema.yaml
+
+board-cfg.yaml: $(BOARD_YAML)
+	@cp $< $@
+rm-cfg.yaml: $(RM_YAML)
+	@cp $< $@
+sec-cfg.yaml: $(SEC_YAML)
+	@cp $< $@
+pm-cfg.yaml: $(PM_YAML)
+	@cp $< $@
+
+schema.yaml: $(SCHEMA_YAML)
+	@cp $< $@
+
+INPUTS-y	+= board-cfg.yaml
+INPUTS-y	+= rm-cfg.yaml
+INPUTS-y	+= sec-cfg.yaml
+INPUTS-y	+= pm-cfg.yaml
+INPUTS-y	+= schema.yaml
+
+endif
+
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
 ifdef CONFIG_CPU_V7R
