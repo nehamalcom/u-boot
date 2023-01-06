@@ -76,6 +76,7 @@ endif
 
 # tiboot3.bin is mandated by ROM and ROM only supports R5 boot.
 # So restrict tiboot3.bin creation for CPU_V7R.
+ifndef CONFIG_BINMAN
 ifdef CONFIG_CPU_V7R
 image_check: $(obj)/u-boot-spl.bin FORCE
 	@if [ $(IMAGE_SIZE) -gt $(MAX_SIZE) ]; then			    \
@@ -92,6 +93,7 @@ tiboot3.bin: image_check FORCE
 
 INPUTS-y	+= tiboot3.bin
 endif
+endif
 
 ifdef CONFIG_ARM64
 
@@ -99,6 +101,7 @@ ifeq ($(CONFIG_SOC_K3_J721E),)
 export DM := /dev/null
 endif
 
+ifndef CONFIG_BINMAN
 ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
 SPL_ITS := u-boot-spl-k3_HS.its
 $(SPL_ITS): export IS_HS=1
@@ -106,6 +109,7 @@ INPUTS-y	+= tispl.bin_HS
 else
 SPL_ITS := u-boot-spl-k3.its
 INPUTS-y	+= tispl.bin
+endif
 endif
 
 ifeq ($(CONFIG_SPL_OF_LIST),)
