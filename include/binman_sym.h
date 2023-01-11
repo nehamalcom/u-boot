@@ -11,6 +11,8 @@
 #ifndef __BINMAN_SYM_H
 #define __BINMAN_SYM_H
 
+#include <linux/types.h>
+
 /* BSYM in little endian, keep in sync with tools/binman/elf.py */
 #define BINMAN_SYM_MAGIC_VALUE	(0x4d595342UL)
 #define BINMAN_SYM_MISSING	(-1UL)
