@@ -1,0 +1,6 @@
+---
+
+main-branch:
+  small-branch:
+    a: 0x0
+    b: 0x1
