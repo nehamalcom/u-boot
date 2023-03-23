@@ -74,6 +74,23 @@ imageSize              = INTEGER:{len(indata)}
                 '-sha512']
         return self.run_cmd(*args)
 
+    def x509_cert_custom(self, cert_fname, key_fname, config_fname, sha):
+        """Create a custom certificate
+
+        Args:
+            cert_fname (str): Filename of certificate to create
+            key_fname (str): Filename of .pem file
+            config_fname (str): Filename to write fconfig into
+            sha (int): hash function to use
+
+        Returns:
+            str: Tool output
+        """
+        args = ['req', '-new', '-x509', '-key', key_fname, '-nodes',
+                '-outform', 'DER', '-out', cert_fname, '-config', config_fname,
+                f'-sha{sha}']
+        return self.run_cmd(*args)
+
     def fetch(self, method):
         """Fetch handler for openssl
 
