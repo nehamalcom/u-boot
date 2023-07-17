@@ -634,6 +634,7 @@
 
 		fit {
 			description = "FIT image with multiple configurations";
+			fit,fdt-list = "of-list";
 
 			images {
 				uboot {
@@ -651,27 +652,11 @@
 					};
 				};
 
-				fdt-0 {
-					description = "k3-j721e-common-proc-board";
+				@fdt-SEQ {
+					description = "NAME";
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
-						filename = J721E_EVM_DTB;
-					};
-					hash {
-						algo = "crc32";
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = J721E_SK_DTB;
-					};
 					hash {
 						algo = "crc32";
 					};
@@ -679,20 +664,13 @@
 			};
 
 			configurations {
-				default = "conf-0";
+				default = "@conf-DEFAULT-SEQ";
 
-				conf-0 {
-					description = "k3-j721e-common-proc-board";
+				@conf-SEQ {
+					description = "NAME";
 					firmware = "uboot";
 					loadables = "uboot";
-					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "uboot";
-					loadables = "uboot";
-					fdt = "fdt-1";
+					fdt = "fdt-SEQ";
 				};
 			};
 		};
