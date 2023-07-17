@@ -529,6 +529,7 @@
 
 		fit {
 			description = "Configuration to load ATF and SPL";
+			fit,fdt-list = "of-list";
 			#address-cells = <1>;
 
 			images {
@@ -585,42 +586,23 @@
 					};
 				};
 
-				fdt-0 {
-					description = "k3-j721e-common-proc-board";
+				@splfdt-SEQ {
+					description = "NAME";
 					type = "flat_dt";
 					arch = "arm";
 					compression = "none";
-					blob {
-						filename = SPL_J721E_EVM_DTB;
-					};
-				};
-
-				fdt-1 {
-					description = "k3-j721e-sk";
-					type = "flat_dt";
-					arch = "arm";
-					compression = "none";
-					blob {
-						filename = SPL_J721E_SK_DTB;
-					};
+					data-filename = "spl/dts/NAME.dtb";
 				};
 			};
 
 			configurations {
-				default = "conf-0";
+				default = "@conf-DEFAULT-SEQ";
 
-				conf-0 {
-					description = "k3-j721e-common-proc-board";
+				@conf-SEQ {
+					description = "NAME";
 					firmware = "atf";
 					loadables = "tee", "dm", "spl";
-					fdt = "fdt-0";
-				};
-
-				conf-1 {
-					description = "k3-j721e-sk";
-					firmware = "atf";
-					loadables = "tee", "dm", "spl";
-					fdt = "fdt-1";
+					fdt = "fdt-SEQ";
 				};
 			};
 		};
