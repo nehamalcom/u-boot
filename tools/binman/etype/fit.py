@@ -362,6 +362,7 @@ class Entry_fit(Entry_section):
             if pname.startswith('fit,'):
                 self._fit_props[pname] = prop
         self._fit_list_prop = self._fit_props.get('fit,fdt-list')
+        self._fit_indir = fdt_util.GetString(self._node, 'fit,fdt-indir', None)
         if self._fit_list_prop:
             fdts, = self.GetEntryArgsOrProps(
                 [EntryArg(self._fit_list_prop.value, str)])
@@ -583,7 +584,11 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
-                    fname = tools.get_input_filename(fdt_fname + '.dtb')
+                    print("in gen fdt nodes")
+                    if self._fit_indir:
+                        fname = tools.get_input_filename(fdt_fname + '.dtb', specific_indir=self._fit_indir)
+                    else:
+                        fname = tools.get_input_filename(fdt_fname + '.dtb')
                     with fsw.add_node(node_name):
                         for pname, prop in node.props.items():
                             if pname == 'fit,firmware':

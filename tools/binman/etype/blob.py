@@ -19,6 +19,8 @@ class Entry_blob(Entry):
 
     Properties / Entry arguments:
         - filename: Filename of file to read into entry
+        - indir-path: Specific directory to fetch file from, if not provided
+        default indir paths will be searched
         - compress: Compression algorithm to use:
             none: No compression
             lz4: Use lz4 compression (via 'lz4' command-line utility)
@@ -35,6 +37,7 @@ class Entry_blob(Entry):
         super().__init__(section, etype, node,
                          auto_write_symbols=auto_write_symbols)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
+        self._indir_path = fdt_util.GetString(self._node, 'indir-path', None)
         self.elf_fname = fdt_util.GetString(self._node, 'elf-filename',
                                             self.elf_fname)
         self.elf_base_sym = fdt_util.GetString(self._node, 'elf-base-sym')
@@ -44,8 +47,13 @@ class Entry_blob(Entry):
 
     def ObtainContents(self, fake_size=0):
         self._filename = self.GetDefaultFilename()
-        self._pathname = tools.get_input_filename(self._filename,
-            self.external and (self.optional or self.section.GetAllowMissing()))
+        if self._indir_path:
+            self._pathname = tools.get_input_filename(self._filename,
+                self.external and (self.optional or self.section.GetAllowMissing()),
+                self._indir_path)
+        else:
+            self._pathname = tools.get_input_filename(self._filename,
+                self.external and (self.optional or self.section.GetAllowMissing()))
         # Allow the file to be missing
         if not self._pathname:
             self._pathname, faked = self.check_fake_fname(self._filename,

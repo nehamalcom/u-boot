@@ -123,12 +123,13 @@ def set_input_dirs(dirname):
     indir = dirname
     tout.debug("Using input directories %s" % indir)
 
-def get_input_filename(fname, allow_missing=False):
+def get_input_filename(fname, allow_missing=False, specific_indir=None):
     """Return a filename for use as input.
 
     Args:
         fname: Filename to use for new file
         allow_missing: True if the filename can be missing
+        specific_indir: desc
 
     Returns:
         fname, if indir is None;
@@ -140,6 +141,10 @@ def get_input_filename(fname, allow_missing=False):
     """
     if not indir or fname[:1] == '/':
         return fname
+    if specific_indir:
+        pathname = os.path.join(specific_indir, fname)
+        if os.path.exists(pathname):
+            return pathname
     for dirname in indir:
         pathname = os.path.join(dirname, fname)
         if os.path.exists(pathname):
