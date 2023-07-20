@@ -14,6 +14,7 @@ from dtoc import fdt_util
 from dtoc.fdt import Fdt
 from u_boot_pylib import tools
 
+signature_etypes = ['ti-secure', 'vblock']
 # Supported operations, with the fit,operation property
 OP_GEN_FDT_NODES, OP_SPLIT_ELF = range(2)
 OPERATIONS = {
@@ -353,6 +354,8 @@ class Entry_fit(Entry_section):
         self._fit_props = {}
         self._fdts = None
         self.mkimage = None
+        self.keyfile = None
+        self.sign_etype = None
         self._priv_entries = {}
         self._loadables = []
 
@@ -423,7 +426,8 @@ class Entry_fit(Entry_section):
                 self._entries[image_name] = entry
 
             for subnode in node.subnodes:
-                _add_entries(base_node, depth + 1, subnode)
+                if subnode.name not in signature_etypes:
+                    _add_entries(base_node, depth + 1, subnode)
 
         _add_entries(self._node, 0, self._node)
 
@@ -584,7 +588,6 @@ class Entry_fit(Entry_section):
                 # Generate nodes for each FDT
                 for seq, fdt_fname in enumerate(self._fdts):
                     node_name = node.name[1:].replace('SEQ', str(seq + 1))
-                    print("in gen fdt nodes")
                     if self._fit_indir:
                         fname = tools.get_input_filename(fdt_fname + '.dtb', specific_indir=self._fit_indir)
                     else:
@@ -611,11 +614,20 @@ class Entry_fit(Entry_section):
 
                         # Add data for 'images' nodes (but not 'config')
                         if depth == 1 and in_images:
-                            fsw.property('data', tools.read_file(fname))
+                                fsw.property('data', tools.read_file(fname))
 
                         for subnode in node.subnodes:
-                            with fsw.add_node(subnode.name):
-                                _add_node(node, depth + 1, subnode)
+                            if subnode.name in signature_etypes:
+                                sign_entry = Entry.Create(self, subnode, subnode.name)
+                                dat = tools.read_file(fname)
+                                if subnode.name == 'ti-secure':
+                                    sign_entry.ReadNode()
+                                    sign_entry.AddBintools(sign_entry.bintools)
+                                    sign_entry.data = sign_entry.GetCertificate(True, dat)
+                                    fsw.property('data', sign_entry.data + dat)
+                            else:
+                                with fsw.add_node(subnode.name):
+                                    _add_node(node, depth + 1, subnode)
             else:
                 if self._fdts is None:
                     if self._fit_list_prop:
@@ -748,6 +760,7 @@ class Entry_fit(Entry_section):
                     # This subnode is a content node not meant to appear in
                     # the FIT (e.g. "/images/kernel/u-boot"), so don't call
                     # fsw.add_node() or _add_node() for it.
+                    print(f"bypassing {subnode.name}")
                     pass
                 elif self.GetImage().generate and subnode.name.startswith('@'):
                     entry = self._priv_entries.get(subnode.name)

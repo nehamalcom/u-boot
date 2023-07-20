@@ -60,7 +60,7 @@ class Entry_x509_cert(Entry_collection):
             EntryArg('keyfile', str)], required=True)[0]
         self.sw_rev = fdt_util.GetInt(self._node, 'sw-rev', 1)
 
-    def GetCertificate(self, required, type='generic'):
+    def GetCertificate(self, required, type='generic', dat=None):
         """Get the contents of this entry
 
         Args:
@@ -68,13 +68,18 @@ class Entry_x509_cert(Entry_collection):
                 return None
             type: Type of x509 certificate to generate, current supported ones are
             'generic', 'sysfw', 'rom'
+            content: Bytes to consider as contents to be signed, helpful in case of
+            FIT image signing
 
         Returns:
             bytes content of the entry, which is the signed vblock for the
                 provided data
         """
         # Join up the data files to be signed
-        input_data = self.GetContents(required)
+        if dat is None:
+            input_data = self.GetContents(required)
+        else:
+            input_data = dat
         if input_data is None:
             return None
 

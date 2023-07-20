@@ -38,6 +38,7 @@ class Entry_ti_secure(Entry_x509_cert):
         self.key_fname = self.GetEntryArgsOrProps([
             EntryArg('keyfile', str)], required=True)[0]
         self.sha = fdt_util.GetInt(self._node, 'sha', 512)
+        self.dat = None
         self.req_dist_name = {'C': 'US',
                 'ST': 'TX',
                 'L': 'Dallas',
@@ -46,23 +47,29 @@ class Entry_ti_secure(Entry_x509_cert):
                 'CN': 'TI Support',
                 'emailAddress': 'support@ti.com'}
 
-    def GetCertificate(self, required):
+    def GetCertificate(self, required, dat=None):
         """Get the contents of this entry
 
         Args:
             required: True if the data must be present, False if it is OK to
                 return None
+            dat: contents to sign if required instead of phandle
 
         Returns:
             bytes content of the entry, which is the certificate binary for the
                 provided data
         """
-        return super().GetCertificate(required=required, type='sysfw')
+        if dat is not None:
+            self.dat = dat
+        return super().GetCertificate(required=required, type='sysfw', dat=dat)
 
     def ObtainContents(self):
         data = self.data
         if data is None:
-            data = self.GetCertificate(False)
+            if self.dat is None:
+                data = self.GetCertificate(False)
+            else:
+                data = self.GetCertificate(False, self.dat)
         if data is None:
             return False
         self.SetContents(data)

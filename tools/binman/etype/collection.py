@@ -28,7 +28,7 @@ class Entry_collection(Entry):
     def __init__(self, section, etype, node):
         super().__init__(section, etype, node)
         self.content = fdt_util.GetPhandleList(self._node, 'content')
-        if not self.content:
+        if not self.content and 'fit' not in self._node.path:
             self.Raise("Collection must have a 'content' property")
 
     def GetContents(self, required):
@@ -44,18 +44,19 @@ class Entry_collection(Entry):
         # Join up all the data
         self.Info('Getting contents, required=%s' % required)
         data = bytearray()
-        for entry_phandle in self.content:
-            entry_data = self.section.GetContentsByPhandle(entry_phandle, self,
-                                                           required)
-            if not required and entry_data is None:
-                self.Info('Contents not available yet')
-                # Data not available yet
-                return None
-            data += entry_data
+        if self.content:
+            for entry_phandle in self.content:
+                entry_data = self.section.GetContentsByPhandle(entry_phandle, self,
+                                                            required)
+                if not required and entry_data is None:
+                    self.Info('Contents not available yet')
+                    # Data not available yet
+                    return None
+                data += entry_data
 
         self.Info('Returning contents size %x' % len(data))
-
         return data
+
 
     def ObtainContents(self):
         data = self.GetContents(False)
